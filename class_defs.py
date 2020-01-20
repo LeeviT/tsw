@@ -5,12 +5,18 @@ import math
 class Input:
 
     # initialization function
-    def __init__(self, n_points, t_steps, K, density, c, dt, dx):
+    def __init__(self, n_points, t_steps, K1, K2, K3, density1, density2, density3, dt, dx):
         self.n_points = n_points
         self.t_steps = t_steps
-        self.K = K
-        self.density = density
-        self.c = c
+        self.K1 = K1
+        self.K2 = K2
+        self.K3 = K3
+        self.density1 = density1
+        self.density2 = density2
+        self.density3 = density3
+        self.c1 = math.sqrt(self.K1 / self.density1)
+        self.c2 = math.sqrt(self.K2 / self.density2)
+        self.c3 = math.sqrt(self.K3 / self.density3)
         self.dt = dt
         self.dx = dx
 
@@ -21,14 +27,32 @@ class Input:
     def get_t_steps(self):
         return self.t_steps
 
-    def get_K(self):
-        return self.K
+    def get_K1(self):
+        return self.K1
 
-    def get_density(self):
-        return self.density
+    def get_K2(self):
+        return self.K2
 
-    def get_c(self):
-        return self.c
+    def get_K3(self):
+        return self.K3
+
+    def get_density1(self):
+        return self.density1
+
+    def get_density2(self):
+        return self.density2
+
+    def get_density3(self):
+        return self.density3
+
+    def get_c1(self):
+        return self.c1
+
+    def get_c2(self):
+        return self.c2
+
+    def get_c3(self):
+        return self.c3
 
     def get_dt(self):
         return self.dt
@@ -97,10 +121,7 @@ class Point:
         left_p_current = left_point.get_p_t()[t_step]
         right_p_current = right_point.get_p_t()[t_step]
 
-        # if source_current < 0.0:
-            # print(source_current)
-
-        p_future = (pow(input_values.get_c(), 2) * (pow(input_values.get_dt(), 2) / pow(input_values.get_dx(), 2))) \
+        p_future = (pow(self.get_c(), 2) * (pow(input_values.get_dt(), 2) / pow(input_values.get_dx(), 2))) \
                    * (right_p_current - 2 * p_current + left_p_current) + 2 * p_current - p_prev \
                    + pow(input_values.get_dt(), 2) * source_current
 
@@ -126,7 +147,7 @@ class Source:
     # calculate intensity of source function at a given time step
     def s_t(self, t, dt):
         freq = 20
-        t0 = 0.04
+        t0 = 0.03
         magnitude = -8 * freq * (t - t0) * math.exp(-pow(4 * freq, 2) * pow(t - t0, 2))
         # magnitude = -0.5*math.sin(t*30)
         if abs(magnitude) >= 10e-18:

@@ -1,0 +1,110 @@
+\documentclass[]{article}
+\usepackage{amsmath}
+
+%opening
+\title{Report of the computational solution for 1D acoustic wave equation}
+\author{Leevi Tuikka, 014583623}
+
+\begin{document}
+
+\maketitle
+\pagenumbering{gobble} 
+
+\newpage
+\pagenumbering{arabic}
+
+\section{Introduction}
+
+\newpage
+
+\section{Theory}
+
+\subsection{Physical and mathematical foundations}
+
+The whole basis of this project lies on one-dimensional scalar wave equation which is second-order partial differential equation. Physically it describes, how wave, i.e. disturbance, advances in a physical medium (string in this case) as a function of time and space. One-dimensional wave equation looks the following
+\begin{equation}
+	\frac{\partial^2 u\left(x\right)}{\partial t^2}=c^2\frac{\partial^2 u\left(x\right)}{\partial x^2}
+\end{equation} 
+where $\frac{\partial^2}{\partial t^2}$ is second-order partial time derivative, $\frac{\partial^2}{\partial x^2}$ is second-order spatial derivative, $u(x)$ is the disturbance, $x$ is the only spatial coordinate of the medium and $c$ is the propagation speed of the disturbance, defined by the mechanical properties of the medium. \par
+"Disturbance $u\left(x\right)$" might sound a bit abstract as it is, so let us limit wave type to only mechanical waves and particularly longitudinal waves. This wave type advances to same direction as the disturbance is. Therefore, in order to describe disturbance mathematically, no other variables (e.g. angles) than magnitude of the disturbance are needed, so we are really dealing with scalar object. We can also conclude, that as we are dealing with mechanical longitudinal waves producing scalar disturbances, those disturbances manifest as density changes in a continuous medium. Now, by cutting out possible temperature changes and changes of chemical composition of a medium, and looking at changes in mechanical properties leading to density changes, it becomes evident that "disturbance" is actually variation in mechanical pressure. Density variations also leads us to deformation, which poses elastic behaviour in this particular case, if we consider a medium to dense gas or elastic geological material. To relate previous discussion to equation (1), let us define square of the propagation speed
+\begin{equation}
+	c^2=\frac{K}{\rho}
+\end{equation} 
+where $K$ is the bulk modulus, which defines how much a medium deforms as a function of stress and $\rho$ is the density. For the sake of clarity, let us define $p\left(x,t\right)\equiv u\left(x,t\right)$, so it matches SI symbol. \par 
+Now, as we know what eq. (1) more or less presents, it makes sense to start putting it to some more useful form. Currently, eq. (1) assumes, that disturbance travels somewhere outside of the boundaries of the medium, which needs to be fixed for this project. Therefore we introduce the source term
+\begin{equation}
+	s=f\left(x,t\right)
+\end{equation}
+where $f(x,t)$ is some arbitrary function, as a function of place and time. We consider point source, i.e. the source function can "produce non-zero values" only in one spatial point, so source time function can be decomposed into Dirac delta function $\delta\left(x\right)$ and some arbitrary function $g\left(t\right)$ which varies as a function of time
+\begin{equation}
+	s\left(x,t\right)=\delta\left(x\right)g\left(t\right)
+\end{equation}
+For this project, we use particular form$^{\left[1\right]}$ of the 1st derivative of Gaussian function for $g\left(x\right)$, so source function becomes the following
+\begin{equation}
+	s\left(x,t\right)=\delta\left(x\right)g\left(t\right)=\delta\left(x\right)\cdot\left(-8f_0\left(t-t_0\right)e^{-16f_0^2\left(t-t_0\right)}\right)
+\end{equation}
+As we have now defined the source function, complete form of the 1D scalar wave equation with source looks the following
+\begin{equation}
+	\frac{\partial^2 p\left(x\right)}{\partial t^2}=c^2\frac{\partial^2 p\left(x\right)}{\partial x^2}+s\left(x,t\right)
+\end{equation}
+
+\subsection{Discretization}
+To be able to transform eq. (6) into program code, it must be transformed from the continuous domain to the discretized domain. For this, let us define some arbitrary discretization point $x_j=j\textrm{d}x$, where $j\in\left[0,j_\textrm{max}\right]$ is the index of the particular discretization point and $\textrm{d}x$ is the grid spacing coefficient, i.e. the distance between two discretization points, which is constant in this project. Also time domain must be discretized, so let us define some arbitrary time step as $t_n=n\textrm{d}t$, where $n\in\left[0,n_\textrm{max}\right]$ is the index of the time step and $\textrm{d}t$ is the length of the time step. Using the previous definitions, pressure at a given place and time can be written
+\begin{equation}
+	p\left(x_j,t_n\right)=p^n_j
+\end{equation}
+when eq. (6) becomes with eq. (4)
+\begin{equation}
+	\frac{\partial^2 p^n_j}{\partial t^2}=c^2_j\frac{\partial^2 p^n_j}{\partial x^2}+\delta_j g^n
+\end{equation}
+as we demand, that also propagation speed $c$ may vary as a function of space. However, derivatives are still presented in a continuous fashion. By using finite difference method, first-order derivative is defined in the following way
+\begin{equation}
+	\frac{\partial f\left(x\right)}{\partial x}=\lim\limits_{dx \rightarrow 0}\frac{f\left(x+\textrm{d}x\right)-f\left(x-\textrm{d}x\right)}{\textrm{d}x}
+\end{equation} 
+In order to deal with the $\lim\limits_{dx \rightarrow 0}$, eq. (9) can be split to backward-difference scheme, central-difference scheme and forward-difference scheme 
+\begin{align*}
+	\frac{\partial f^-\left(x\right)}{\partial x}&\approx\frac{f\left(x\right)-f\left(x-\textrm{d}x\right)}{\textrm{d}x} \\
+	\frac{\partial f^c\left(x\right)}{\partial x}&\approx\frac{f\left(x+\textrm{d}x\right)-f\left(x-\textrm{d}x\right)}{2\textrm{d}x} \\
+	\frac{\partial f^+\left(x\right)}{\partial x}&\approx\frac{f\left(x+\textrm{d}x\right)-f\left(x\right)}{\textrm{d}x}
+\end{align*}
+To pick the best one of these, we can estimate errors by using Taylor series expansion
+\begin{equation}
+	f\left(x+\textrm{d}x\right)\approx f\left(x\right)+f'\left(x\right)\textrm{d}x+\frac{1}{2}f''\left(x\right)\textrm{d}x^2+O\left(\textrm{d}x^3\right)
+\end{equation}
+Backward-difference scheme and forward-difference scheme should be symmetrical for some symmetric function, so we can estimate error of both by picking either one and expanding it to Taylor series
+\begin{equation*}
+	\frac{\partial f^-\left(x\right)}{\partial x}\approx f'\left(x\right)+O\left(\textrm{d}x\right)
+\end{equation*}
+And Taylor series expansion for the central-difference scheme
+\begin{equation*}
+	\frac{\partial f^c\left(x\right)}{\partial x}\approx f'\left(x\right)+O\left(\textrm{d}x^2\right)
+\end{equation*}
+so it is evident that central-difference scheme converges fastest, i.e. gives best solution as the $\textrm{d}x\rightarrow 0$. \par
+Now, to construct discretized form for the 2nd order derivative, we would like to use of course central-difference scheme. This can be done by using backward-difference and forward-difference schemes of once differentiated function, since we are trying to find the slope of the slope. Now, the central-difference scheme for the second order derivative would be 
+\begin{equation*}
+	\frac{\partial^2 f^c\left(x\right)}{\partial x^2}\approx \frac{\frac{\partial f^+\left(x\right)}{\partial x}-\frac{\partial f^-\left(x\right)}{\partial x}}{\textrm{d}x}=\frac{f\left(x+\textrm{d}x\right)-2f\left(x\right)+f\left(x-\textrm{d}x\right)}{\textrm{d}x^2}
+\end{equation*}
+And plugging this to eq. (6) we get
+\begin{equation}
+	\frac{p_j^{n+1}-2p_j^n+p_j^{n-1}}{\textrm{d}t^2}=c^2_j\left(\frac{p_{j+1}^n-2p_j^n+p_{j-1}^n}{\textrm{d}x^2}\right)+\delta_j g^n
+\end{equation}
+In order to find $p_j^{n+1}$, i.e. value for the pressure on the next time step at some spatial point, eq. (11) must be rearranged to form
+\begin{equation}
+	p_j^{n+1}=c_j^2\frac{\textrm{d}t^2}{\textrm{d}x^2}\left(p^n_{j+1}-2p^n_j+p^n_{j-1}\right)+2p^n_j-p_j^{n+1}+\textrm{d}t^2\delta_j g^n	
+\end{equation}
+
+\newpage
+
+\section{Program code and technical details}
+
+\newpage
+
+\section{Results}
+
+\newpage
+
+\section{References}
+
+\newpage
+
+\end{document}

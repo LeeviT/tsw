@@ -1,0 +1,7 @@
+.idea/*
+__pycache__/*
+.idea/workspace.xml
+report.aux
+report.log
+report.synctex*
+myplot.png
