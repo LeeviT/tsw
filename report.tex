@@ -1,5 +1,6 @@
 \documentclass[]{article}
 \usepackage{amsmath}
+\usepackage[]{algorithm2e}
 
 %opening
 \title{Report of the computational solution for 1D acoustic wave equation}
@@ -90,12 +91,56 @@ And plugging this to eq. (6) we get
 \end{equation}
 In order to find $p_j^{n+1}$, i.e. value for the pressure on the next time step at some spatial point, eq. (11) must be rearranged to form
 \begin{equation}
-	p_j^{n+1}=c_j^2\frac{\textrm{d}t^2}{\textrm{d}x^2}\left(p^n_{j+1}-2p^n_j+p^n_{j-1}\right)+2p^n_j-p_j^{n+1}+\textrm{d}t^2\delta_j g^n	
+	p_j^{n+1}=c_j^2\frac{\textrm{d}t^2}{\textrm{d}x^2}\left(p^n_{j+1}-2p^n_j+p^n_{j-1}\right)+2p^n_j-p_j^{n-1}+\textrm{d}t^2\delta_j g^n	
 \end{equation}
 
 \newpage
 
 \section{Program code and technical details}
+
+\subsection{Pseudocode}
+import libraries; \\
+\\
+input\_file = open("\textbf{input\_file.txt}"); \\
+\\
+\textit{\# read input parameters to Input class structure}; \\
+input\_values = read\_file(input\_file); \\
+\\
+\textit{\# create Source class object} \\
+source = create\_source(input\_values.get\_source\_id()); \\
+\\
+\textit{\# init discretization point, propagation speed, density and bulk modulus arrays} \\
+points = []; \\
+c = []; \\
+density = []; \\
+K = []; \\
+\\
+\textit{\# set right values of c, density and K for each point} \\
+c = input\_values.get\_c(); \\
+density = input\_values.get\_density(); \\
+K = input\_values.get\_K(); \\
+\\
+\textit{\# add Point class objects to points array and set values for them} \\
+\textbf{for} i = 0, i $<$ input\_values.get\_n\_points(), i++; \\
+\indent points.append(add\_point(i, K[i], density[i], c[i], p=0.0, input\_values)); \\
+\indent \textit{\# allocate array for each point to store p values over time steps} \\
+\indent points[i].allocate\_t\_array(input\_values.get\_timesteps()); \\
+\\
+\textit{\# start looping over time steps}; \\
+\textbf{for} t = 0, t $<$ input\_values.get\_timesteps(), t++; \\
+\indent \textit{\# loop over points at every time step, expect at boundaries} \\
+\indent \textit{\# since points on boundaries don't have j+1 or j-1 points} \\
+\indent \textbf{for} j = 1, j $<$ input\_values.get\_n\_steps() - 1, j++; \\
+\indent \indent \textit{\# calculate value for source if in the source point} \\
+\indent \indent \textbf{if} j == source.get\_id(); \\
+\indent \indent \indent s = source.calculate(t, dt); \\
+\indent \indent \textbf{else}; \\
+\indent \indent \indent s = 0; \\
+\indent \indent \textit{\# calculate $p^{n+1}$ for each point} \\
+\indent \indent points[i].set\_p\_t(c[n]**2 * (input\_values\_get\_dt()**2 / input\_values\_get\_dt()**2) \\
+\indent \indent *(points[i+1].get\_p\_t(t) - 2*points[i].get\_p\_t(t) + points[i-1].get\_p\_t(t)) \\
+\indent \indent + 2*points[i].get\_p\_t(t) - points[i].get\_p\_t(t-1) + input\_values.get\_dt()**2*s)
+
 
 \newpage
 
