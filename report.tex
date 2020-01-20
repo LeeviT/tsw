@@ -98,6 +98,14 @@ In order to find $p_j^{n+1}$, i.e. value for the pressure on the next time step 
 
 \section{Program code and technical details}
 
+\subsection{Python}
+The program code was developed by using 3.6 version of Python, however it should have backward and forward compatibility to all Python 3.x versions. Implementation employs \texttt{numpy}, \texttt{matplotlib}, \texttt{math} libraries which should be included in Python standard libraries.
+
+\subsection{Instructions}
+To run the program, run the following line on command line \\
+\texttt{\$ python3.6 main.py} \\
+and the program first prints the input values to the terminal and after execution it opens a new window in order to plot results on $x-t$ domain. Quality of the image may vary but the program also saves the plot to file \texttt{x\_t\_plot.png} which should show the plot as intended.
+
 \subsection{Pseudocode}
 import libraries; \\
 \\
@@ -139,7 +147,12 @@ K = input\_values.get\_K(); \\
 \indent \indent \textit{\# calculate $p^{n+1}$ for each point} \\
 \indent \indent points[i].set\_p\_t(c[n]**2 * (input\_values\_get\_dt()**2 / input\_values\_get\_dt()**2) \\
 \indent \indent *(points[i+1].get\_p\_t(t) - 2*points[i].get\_p\_t(t) + points[i-1].get\_p\_t(t)) \\
-\indent \indent + 2*points[i].get\_p\_t(t) - points[i].get\_p\_t(t-1) + input\_values.get\_dt()**2*s)
+\indent \indent + 2*points[i].get\_p\_t(t) - points[i].get\_p\_t(t-1) + input\_values.get\_dt()**2*s); \\
+\\
+\textit{\# plot p(t) values from point array over x-t domain} \\
+plot(points[i]); \\
+\\
+end(); \\
 
 
 \newpage

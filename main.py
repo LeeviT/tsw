@@ -105,7 +105,7 @@ def main():
 
         visu_t.append(tmp_p_t)
 
-    plt.figure(dpi=1000)
+    plt.figure(dpi=150)
     plt.rcParams["image.cmap"] = 'inferno'
     plt.imshow(visu_t)
     plt.colorbar()
